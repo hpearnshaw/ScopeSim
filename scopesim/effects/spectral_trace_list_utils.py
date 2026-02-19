@@ -721,17 +721,13 @@ class XiLamImage():
                 idx_sort_lam = np.argsort(cube_lam)
                 cube_xi_sorted = cube_xi[idx_sort_xi]
                 cube_lam_sorted = cube_lam[idx_sort_lam]
-               
                 # sort fluxes (plane) and dispersed wavelengths (lam0) accordingly
                 lam0_sorted = lam0[idx_sort_lam]
                 plane_sorted = plane[np.ix_(idx_sort_xi, idx_sort_lam)]
-                
                 plane_interp = RectBivariateSpline(cube_xi_sorted, cube_lam_sorted, plane_sorted,
-                                                   kx=1, ky=1)
-                # evaluate on 2D grid of slit position (xi) and wavelength (lam) values
-                xi_mesh, lam_mesh = np.meshgrid(cube_xi_sorted, lam0_sorted, indexing='ij')
-                plane_result = plane_interp(xi_mesh.ravel(), lam_mesh.ravel(), grid=False).reshape(xi_mesh.shape)
-                # unsort to match the original order
+                                                    kx=1, ky=1)
+                plane_result = plane_interp(cube_xi_sorted, lam0_sorted)
+                # unsort to match the original order                    
                 inv_idx_xi = np.argsort(idx_sort_xi)
                 inv_idx_lam = np.argsort(idx_sort_lam)
                 result = plane_result[np.ix_(inv_idx_xi, inv_idx_lam)]
