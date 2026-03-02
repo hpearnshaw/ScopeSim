@@ -124,10 +124,18 @@ class ApertureMask(Effect):
                                     u.arcsec).to_value(u.arcsec)
             obj.shrink(["x", "y"], ([min(x), max(x)], [min(y), max(y)]))
 
-            # ..todo: HUGE HACK - Get rid of this!
+            # Automatically detect slit orientation: longer dimension is spatial
+            x_extent = max(x) - min(x)
+            y_extent = max(y) - min(y)
             for vol in obj.volumes:
-                vol["meta"]["xi_min"] = min(x) * u.arcsec
-                vol["meta"]["xi_max"] = max(x) * u.arcsec
+                if x_extent > y_extent:
+                    # Horizontal slit: x is spatial (xi)
+                    vol["meta"]["xi_min"] = min(x) * u.arcsec
+                    vol["meta"]["xi_max"] = max(x) * u.arcsec
+                else:
+                    # Vertical slit: y is spatial (xi)
+                    vol["meta"]["xi_min"] = min(y) * u.arcsec
+                    vol["meta"]["xi_max"] = max(y) * u.arcsec
 
         return obj
 
