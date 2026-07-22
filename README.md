@@ -17,6 +17,12 @@
 
 ## Summary
 
+This is a modified UVEX fork of AstarVienna's ScopeSim package, containing custom Effects 
+and adjustments to support a UVEX instrument simulator. This is currently under development
+and should not be considered indicative of UVEX performance at this time.
+
+For more information about ScopeSim itself, see below and source repository here: [ScopeSim](https://github.com/AstarVienna/ScopeSim)
+
 ScopeSim aims to simulate images of astronomical objects observed with visual
 and infrared instruments. It does this by creating models of the optical train
 and astronomical objects and then pushing the object through the optical train.
