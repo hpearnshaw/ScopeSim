@@ -1,0 +1,16 @@
+# author : Hannah Earnshaw
+# source : 
+# date_created : 2026-01-28
+# date_modified : 2026-04-13
+# status : development
+# type : mirror:list
+# changes :
+# - 2026-01-28 (HE) Created the file
+# - 2026-03-06 (ES) Added dichroic transmission
+# - 2026-03-23 (HE) Updated location of response files
+# - 2026-04-13 (ES) Added effective throughput due to contamination
+
+name                 action          filename
+NUV_Filter           transmission    data_files/UVIM_NUV_filter_response.dat
+NUV_Dichroic         transmission    data_files/UVIM_dichroic_response.dat
+NUV_Contamination    transmission    data_files/UVIM_NUV_contamination.dat

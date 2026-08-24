@@ -1,0 +1,114 @@
+# author : Evangela Shread
+# date_created : 2026-02-26
+# date_modified : 2026-04-09
+# status : development
+# changes :
+# - 2026-02-26 (ES) Created file
+# - 2026-03-23 (HE) Updated data file locations
+# - 2026-04-06 (ES) Added custom PSF effects
+# - 2026-04-09 (ES) Updated PSF effects to include oversampling options
+# - 2026-05-26 (ES) Added properties for slit center in sky coordinates
+
+object: instrument
+alias: INST
+name: LSS
+description: base configuration for UVIM LSS
+
+properties:
+  pixel_scale: 0.80  # arcsec / pixel
+  plate_scale: 80   # arcsec / mm
+  decouple_detector_from_sky_headers: True  # needed for slit spectroscopy
+  # Location of slit with respect to sky origin
+  fov_x0: 12600.0
+  fov_y0: 0.0
+  fov_unit: arcsec
+
+effects:
+  - name: oversample_image
+    description: oversample the image in the spatial directions for subpixel accuracy
+    class: Oversample
+    include: True
+
+  - name: slit_psf
+    description: PSF at the slit
+    class: SlitPSF
+    include: True
+    kwargs:
+      directory: "LSS_SLIT_PSF"
+
+  - name: slit_geometry
+    description: slit geometry on the focal plane
+    class: UVEXSlitMask
+    kwargs:
+      filename: "data_files/UVIM_LSS_slit_geometry.dat"
+
+  - name: relay_optics
+    description: list of extra mirrors needed for the spectroscopy mode
+    class: SurfaceList
+    kwargs:
+      filename: LIST_mirrors_relay.tbl
+
+  - name: grating_efficiency 
+    description: grating efficiency
+    class: SpectralEfficiency
+    kwargs:
+      filename: "data_files/UVIM_LSS_spectral_efficiency.fits"
+
+  - name: spectral_traces
+    description: spectral trace geometry on the focal plane
+    class: SpectralTraceList
+    kwargs:
+      filename: "data_files/UVIM_LSS_spectral_trace.fits"
+      dispersion_file: "data_files/UVIM_LSS_dispersion.dat"
+
+  - name : surfaces
+    description : surfaces list for the spectroscopy mode
+    class : SurfaceList
+    kwargs :
+        filename : "LIST_surfaces_LSS.tbl"
+
+  - name: detector_psf
+    description: PSF on the detector
+    class: LSSDetectorPSF
+    include: True
+    kwargs:
+      directory: "LSS_DET_PSF"
+
+  - name: downsample_image
+    description: downsample the image to native pixel resolution after it has been oversampled
+    class: Downsample
+    include: True
+
+# LSS-specific simulation parameters
+---
+object: simulation
+alias: SIM
+name: LSS_simulation_parameters
+description: simulation parameters for UVEX LSS spectroscopy run
+
+properties:
+  spectral:
+    spectral_bin_width: 8.2e-5  # microns, estimate from ETC (I think? was it the CSR?)
+    spectral_resolution: 5000
+    wave_min: 0.1150   
+    wave_mid: 0.2350 
+    wave_max: 0.3550
+    wave_unit: um
+
+  computing:
+    # If UVEX PSF effects are applied, oversampling options are: 1 (don't oversample at all), 2, 10. 
+    # If not 1, should both divide into 10 and be a multiple of 2.
+    oversampling_x: 10
+    oversampling_y: 10
+    crop_x: [-13.2, 13.2] # The arcsec bounds in spectral direction relative to slit center (REQUIRED for accurate convolution at the slit before applying the slit mask)
+                          # Value tuned so that
+                          #     (1) Image subtends an exact, odd pixel count at native resolution
+                          #     (2) Pixel width > tile size of 32
+                          #     (3) Center of image coincides with center of the slit
+
+    crop_y: [-30.,30.] # The arcsec bounds in spatial direction relative to slit center. Helps fit an oversampled image in memory.
+    crop_unit: arcsec
+
+  # TODO: figure out why this doesn't work as expected...
+  #  chunk_size : 256
+  #  max_segment_size : 1024

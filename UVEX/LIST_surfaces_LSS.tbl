@@ -1,0 +1,14 @@
+# author : Evangela Shread
+# source : 
+# date_created : 2026-04-13
+# date_modified : 
+# status : development
+# type : mirror:list
+# changes :
+# - 2026-02-11 (ES) Created the file
+# - 2026-03-23 (HE) Updated location of response file
+# - 2026-04-13 (ES) Added effective throughput due to contamination
+
+name                action          filename
+LSS_Filter          transmission    data_files/UVIM_LSS_filter_response.dat
+LSS_Contamination   transmission    data_files/UVIM_LSS_contamination.dat

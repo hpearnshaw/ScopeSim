@@ -1,0 +1,20 @@
+# name : UVEX linearity curve
+# author : Hannah Earnshaw
+# date_created : 2026-06-12
+# date_modified : 2026-06-12
+# type : detector:linearity
+# incident_unit : e
+# measured_unit : e
+#
+# changes :
+# - 2026-06-12 (HE) dummy curve to get us started
+#
+incident    measured
+0           0
+1           1
+100         100
+1000        1000
+5000        5000
+10000       10000
+15000       15000
+1e19        15000

@@ -1,0 +1,12 @@
+"BOL and EOL thickness in units Angstroms"
+Component,BOL,EOL,Passes
+M1,5,5,2
+M2,5,5,2
+M3,5,5,2
+Dichroic,15,20,2
+SM1,5,5,2
+Grating,5,5,2
+SM2,5,5,2
+NUVSurface,15,40,1
+FUVSurface,15,40,1
+LSSSurface,15,40,1

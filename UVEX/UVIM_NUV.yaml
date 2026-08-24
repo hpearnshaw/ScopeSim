@@ -1,0 +1,35 @@
+# author : Hannah Earnshaw
+# date_created : 2026-01-28
+# date_modified : 2026-03-23
+# status : development
+# changes :
+# - 2026-01-28 (HE) Created file
+# - 2026-03-23 (HE) Updated data file locations
+
+object: instrument
+alias: INST
+name: NUV
+description: base configuration for UVIM NUV imaging plane
+
+properties:
+  pixel_scale: 1.03  # arcsec / pixel
+  plate_scale: 103   # arcsec / mm
+
+effects:
+  - name: psf
+    class: SeeingPSF
+    kwargs:
+      fwhm: 2
+      fwhm_unit: arcsec
+
+  - name: nuv_surfaces
+    description: surfaces list for NUV imaging, including the filter and dichroic transmission
+    class: SurfaceList
+    kwargs:
+      filename: LIST_surfaces_NUV.tbl
+
+  - name: qe_curve
+    description: Quantum efficiency curve for the NUV detector
+    class: QuantumEfficiencyCurve
+    kwargs:
+        filename: data_files/UVIM_NUV_QE.dat

@@ -1,0 +1,40 @@
+# author : Hannah Earnshaw
+# date_created : 2026-01-28
+# date_modified : 2026-03-23
+# status : development
+# changes :
+# - 2026-01-28 (HE) Created file
+# - 2026-03-23 (HE) Added metadata
+# - 2026-05-26 (ES) Added spacecraft pointing effect
+
+object: telescope
+alias: TEL
+name: UVEX
+description: The Ultraviolet Explorer telescope common optics
+
+properties:
+  temperature: 0
+  telescope: UVEX
+  area: 0.4417865
+  area_unit: m2
+
+effects:
+  - name: spacecraft_pointing
+    description: Blurring due to spacecraft pointing jitter
+    class: SpacecraftPointing
+    include: True
+    kwargs:
+      fwhm: 2
+      fwhm_unit: arcsec
+      
+  - name: ota_surface_list
+    description: list of surfaces in UVEX OTA
+    class: SurfaceList
+    kwargs:
+      filename: LIST_mirrors_OTA.tbl
+
+---
+alias: ATMO
+description: "Fake !ATMO.location to avoid confusing ScopeSim"
+properties:
+  location: Space

@@ -1,0 +1,102 @@
+# author : Hannah Earnshaw
+# date_created : 2026-01-28
+# date_modified : 2026-06-12
+# status : development
+# changes :
+# - 2026-01-28 (HE) Created file
+# - 2026-03-05 (OA) Created detector array and added effects
+# - 2026-03-23 (HE) Added metadata
+# - 2026-06-12 (HE) Added linearity and Si bandgap
+
+object: detector
+alias: DET
+name: uvex_detector
+description: A 3x3 mosaic of CMOS detectors (each 4096x4096)
+source:
+
+properties:
+  detector: UVEX_CMOS
+  image_plane_id: 0
+  dit: "!OBS.dit"
+  ndit: "!OBS.ndit"
+  gain: 1.2
+
+effects:
+  - name: UVEX_Detector
+    class: DetectorList
+    include: True
+    kwargs:
+      filename: data_files/UVIM_DET_layout.dat
+      x_cen_unit: mm
+      y_cen_unit: mm
+      x_size_unit: mm
+      y_size_unit: mm
+      pixsize_unit: mm
+      angle_unit: deg
+      gain_unit: electron/adu
+
+  # QE is intentionally NOT included here (handled separately for NUV and FUV)
+
+  - name: si_bandgap
+    description: Si band gap at ~1.1 um
+    class: QuantumEfficiencyCurve
+    kwargs:
+      filename: data_files/Si_bandgap.dat
+
+  - name: exposure
+    description: Expose for given exposure time DIT
+    class: ExposureIntegration
+
+  - name: dark_current
+    description: CMOS detector dark current
+    class: DarkCurrent
+    kwargs:
+      value: 0.001 # [e-/s]
+
+  - name: shot_noise
+    description: Apply poisson shot noise to images
+    class: ShotNoise
+
+  - name: detector_linearity
+    description: Detector linearity and saturation characteristics
+    class: LinearityCurve
+    kwargs:
+      filename: data_files/UVIM_DET_linearity.dat
+
+  - name: inter_pixel_capacitance
+    description: Inter-pixel capacitance (IPC) convolution kernel
+    class: InterPixelCapacitance
+    include: False
+    kwargs:
+      filename: tbd_ipc_kernel.fits
+
+#  - name: bias
+#    description: Constant electronic bias offset added to the readout
+#    class: Bias
+#    kwargs:
+#      value: 0
+
+  - name: readout_noise
+    description: Readout noise frames
+    class: BasicReadoutNoise
+    kwargs:
+      noise_std: 3
+
+  - name: ad_conversion
+    description: Apply gain and convert electron count into integers
+    class: ADConversion
+    kwargs:
+       dtype: uint16
+       gain:
+           1:  "!DET.gain"
+           2:  "!DET.gain"
+           3:  "!DET.gain"
+           4:  "!DET.gain"
+           5:  "!DET.gain"
+           6:  "!DET.gain"
+           7:  "!DET.gain"
+           8:  "!DET.gain"
+           9:  "!DET.gain"
+
+
+

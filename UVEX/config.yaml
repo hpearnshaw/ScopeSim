@@ -1,0 +1,67 @@
+# UVEX simulator configuration file
+#
+# Defines the input files (that live in /inputs directory)
+# and properties required to generate the IRDB data files
+#   
+# Units should be given in a form parseable by astropy.units e.g. OGIP
+#
+# date_created : 2026-03-23
+# date_modified : 2026-03-23
+# changes :
+# - 2026-03-23 (HE) Created the file
+
+# Telescope inputs
+telescope:
+    mirror_reflectivity_file: "mirror_reflectivity.dat"
+    contamination: 
+        absorption_coefficient_file: "contam_absorption_coeff.txt"
+        thickness_file: "contam_thickness.csv"
+        stage: "eol" # must be 'bol' (beginning of life) or 'eol' (end of life)
+
+# Detector inputs
+detector: 
+    n_pixels: 4096
+    pix_size: 0.01 mm
+    x_gap: 2.5 mm
+    y_gap: 4.0 mm
+    gain: 1.2 electron/adu
+    angle: 0.0 deg
+
+# Imaging inputs
+imager:
+    gap_size: 200
+    pixel_scale: 1.03 arcsec
+
+    dichroic_file: "135_180nm_UVEX_Dichroic_vs_AOI.csv"
+    nuv_qe_file: "nuv_qe_Hf02.csv"
+    nuv_filter_file: "Materion-NUV-Design-%T.txt"
+    fuv_filter_file: "uvex_fuv_150nmcenter_detector_20250522_longwavelengthcorrection.csv"
+
+# Spectroscopy inputs
+lss:
+    slit_x_0: 3.5 deg
+    slit_y_0: 0 deg
+    
+    slit_length: 3600 arcsec
+    slit_width: 2 arcsec
+    
+    wave_min: 115 nm
+    wave_max: 365 nm
+
+    spectral_efficiency_file: "zeiss_blaze_v1.txt"
+    dispersion_file: "UVEXS_Spectral_Resolution_R2000.txt"
+    filter_file: "graded_overcoat_00nm.csv"
+    detector_psf_dir: "LSS_DET_PSF"
+
+    pixel_scale: 0.80 arcsec
+    y_distortion: True
+
+lss_detector:
+    n_pixels: 4096
+    pix_size: 0.01 mm
+    x_gap: 0.616 mm
+    gain: 1.2 electron/adu
+    angle: 0.0 deg
+    x1_cen: -5.874 mm
+    y1_cen: 0.0 mm
+

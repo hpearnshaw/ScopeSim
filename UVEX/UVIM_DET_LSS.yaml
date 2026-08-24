@@ -1,0 +1,100 @@
+# author : Evangela Shread
+# date_created : 2026-01-28
+# date_modified : 2026-06-12
+# status : development
+# changes :
+# - 2026-02-12 (ES) Created file
+# - 2026-03-23 (HE) Added metadata
+# - 2026-04-06 (ES) Swapped spectral and spatial directions
+# - 2026-04-13 (ES) Added off-sky position for use with slit, updated detector gap size
+# - 2026-05-18 (OA) Implemented a data file for the coordinates of the detectors
+# - 2026-05-26 (ES) Reference instrument properties for detector center in sky coordinates
+# - 2026-06-12 (HE) Added linearity and Si bandgap
+
+object: detector
+alias: DET
+name: uvex_lss_detector
+description: Two adjacent 4096x4096 CMOS detectors for LSS mode
+
+properties:
+  detector: UVEX_CMOS_LSS
+  image_plane_id: 0
+  dit: "!OBS.dit"
+  ndit: "!OBS.ndit"
+  gain: 1.2
+
+effects:
+  - name: LSS_Detector
+    class: DetectorList
+    include: True
+    kwargs:
+      filename: data_files/UVIM_DET_LSS_layout.dat
+      fov_x_cen: "!INST.fov_x0" # [arcsec]
+      fov_y_cen: "!INST.fov_y0" # [arcsec]
+      x_cen_unit: mm
+      y_cen_unit: mm
+      x_size_unit: mm
+      y_size_unit: mm
+      pixsize_unit: mm
+      angle_unit: deg
+      gain_unit: electron/adu
+
+  - name: si_bandgap
+    description: Si band gap at ~1.1 um
+    class: QuantumEfficiencyCurve
+    kwargs:
+      filename: data_files/Si_bandgap.dat
+
+  - name: lss_exposure
+    description: Expose for given exposure time DIT
+    class: ExposureIntegration
+
+  - name: lss_dark_current
+    description: CMOS detector dark current
+    class: DarkCurrent
+    include: True
+    # [e-/s] level of dark current for each detector
+    kwargs:
+      value: 0.001
+
+  - name: lss_shot_noise
+    description: apply poisson shot noise to images
+    class: ShotNoise
+    include: True
+
+  - name: lss_detector_linearity
+    description: Detector linearity and saturation characteristics
+    class: LinearityCurve
+    kwargs:
+      filename: data_files/UVIM_DET_linearity.dat
+
+  - name: lss_inter_pixel_capacitance
+    description: Inter-pixel capacitance (IPC) convolution kernel
+    class: InterPixelCapacitance
+    include: False
+    kwargs:
+      filename: tbd_ipc_kernel.fits
+
+#  - name: bias
+#    description: Constant electronic bias offset added to the readout
+#    class: Bias
+#    kwargs:
+#      value: 0
+
+  - name: lss_readout_noise
+    description: Readout noise frames
+    class: BasicReadoutNoise
+    include: True
+    kwargs:
+      noise_std: 2.0 # e-
+
+  - name: lss_ad_conversion
+    description: Apply gain and convert electron count into integers
+    class: ADConversion
+    include: True
+    kwargs:
+       dtype: uint16
+       gain:
+           1:  "!DET.gain"
+           2:  "!DET.gain"
+

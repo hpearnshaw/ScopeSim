@@ -1,0 +1,14 @@
+# author : Hannah Earnshaw
+# source : 
+# date_created : 2026-04-13
+# date_modified : 
+# status : development
+# type : mirror:list
+# changes :
+# - 2026-03-23 (HE) Created the file
+# - 2026-04-13 (ES) Added effective throughput due to contamination
+
+name                 action          filename
+FUV_Filter           transmission    data_files/UVIM_FUV_filter_response.dat
+FUV_Dichroic         reflection      data_files/UVIM_dichroic_response.dat
+FUV_Contamination    transmission    data_files/UVIM_FUV_contamination.dat

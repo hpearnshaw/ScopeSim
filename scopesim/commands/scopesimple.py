@@ -109,7 +109,7 @@ class Simulation:
         self._init_kwargs = kwargs
         self._last_readout = None
 
-        check_packages(instrument, download_missing)
+        #check_packages(instrument, download_missing)
         # if mode is not None:
         #     # Avoid [None], which confuses UserCommands
         mode = always_iterable(mode)
