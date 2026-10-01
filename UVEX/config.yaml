@@ -22,8 +22,8 @@ telescope:
 detector: 
     n_pixels: 4096
     pix_size: 0.01 mm
-    x_gap: 2.5 mm
-    y_gap: 4.0 mm
+    x_gap: 4.05 mm
+    y_gap: 2.55 mm
     gain: 1.2 electron/adu
     angle: 0.0 deg
 
@@ -59,7 +59,7 @@ lss:
 lss_detector:
     n_pixels: 4096
     pix_size: 0.01 mm
-    x_gap: 0.616 mm
+    x_gap: 0.666 mm
     gain: 1.2 electron/adu
     angle: 0.0 deg
     x1_cen: -5.874 mm

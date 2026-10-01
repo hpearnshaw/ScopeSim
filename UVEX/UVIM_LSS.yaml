@@ -96,19 +96,20 @@ properties:
     wave_unit: um
 
   computing:
-    # If UVEX PSF effects are applied, oversampling options are: 1 (don't oversample at all), 2, 10. 
-    # If not 1, should both divide into 10 and be a multiple of 2.
+    # If UVEX PSF effects are applied, oversampling options are: 1 (don't oversample at all), 2, 10. In other words, should divide into 10 and be even.
     oversampling_x: 10
-    oversampling_y: 10
-    crop_x: [-13.2, 13.2] # The arcsec bounds in spectral direction relative to slit center (REQUIRED for accurate convolution at the slit before applying the slit mask)
-                          # Value tuned so that
+    oversampling_y: 2
+    psf_oversampling: 10 # however much the input psfs are oversampled: don't change!
+    flux_accuracy: 1e-4 # requirement on flux conservation when convolution is applied
+    tile_size: 64
+    crop_x: [-13.2, 13.2] # The arcsec bounds in spectral direction relative to slit center (must be large enough for accurate convolution at the slit before applying the slit mask)
+                          # Value tuned so that:
                           #     (1) Image subtends an exact, odd pixel count at native resolution
                           #     (2) Pixel width > tile size of 32
                           #     (3) Center of image coincides with center of the slit
-
-    crop_y: [-30.,30.] # The arcsec bounds in spatial direction relative to slit center. Helps fit an oversampled image in memory.
+    crop_y: [-30.,30.] # The arcsec bounds in spatial direction relative to slit center. Helps fit an oversampled image in memory where the region of interest is small. Set to None for full image.
     crop_unit: arcsec
 
   # TODO: figure out why this doesn't work as expected...
-  #  chunk_size : 256
-  #  max_segment_size : 1024
+    #chunk_size : 128
+    #max_segment_size : 512

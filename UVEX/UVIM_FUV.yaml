@@ -4,6 +4,9 @@
 # status : development
 # changes :
 # - 2026-03-23 (HE) Created file
+# - 2026-06-09 (OA) Added custom PSF effects
+# - 2026-06-09 (OA) Included FoV offset of 0.5 deg
+# - 2026-06-25 (OA) Added custom vignetting effects
 
 object: instrument
 alias: INST
@@ -13,19 +16,44 @@ description: base configuration for UVIM FUV imaging plane
 properties:
   pixel_scale: 1.03  # arcsec / pixel
   plate_scale: 103   # arcsec / mm
+  # Location of instrument center with respect to sky origin
+  fov_x0: -1800      # arcsec = -0.5 deg
+  fov_y0: 0.0       # arcsec
 
 effects:
-  - name: psf
-    class: SeeingPSF
-    kwargs:
-      fwhm: 2
-      fwhm_unit: arcsec
-
   - name: fuv_surfaces
     description: surfaces list for FUV imaging, including the filter and dichroic transmission
     class: SurfaceList
     kwargs:
       filename: LIST_surfaces_FUV.tbl
 
+  - name: illumination
+    description: image-plane vignetting from interpolated FITS map
+    class: FitsIllumination
+    include: True
+    kwargs:
+      filename: data_files/FUV_vignetting_model_4096.fits
+      normalize: False
+      interpolate: True
+
+  - name: psf
+    class: SeeingPSF
+    include: False
+    kwargs:
+      fwhm: 2
+      fwhm_unit: arcsec
+
 # No QE curve required as the filter is directly on the detector and thus incorporates QE
 
+# PSF effects
+# oversampling: Factor by which to oversample the image for convolution; the PSF is sampled to this resolution as well.
+#               This must divide into 10 (the PSF oversampling factor) and it must be <= 10, so options are 1,2,5,10
+
+  - name: detector_psf
+    description: PSF on the detector
+    class: UVIMImagerPSF
+    include: True
+    kwargs:
+      directory: "FUV_PSF"
+      oversampling_x: 1
+      oversampling_y: 1
