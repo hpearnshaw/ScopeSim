@@ -1,0 +1,15 @@
+# author: uvex_response
+# source: design
+# date_created: 2026-09-24
+# status: design
+# x_cen_unit: mm
+# y_cen_unit: mm
+# x_size_unit: mm
+# y_size_unit: mm
+# pixsize_unit: mm
+# angle_unit: deg
+# gain_unit: electron/adu
+
+id    x_cen    y_cen    x_size    y_size    pixsize    angle    gain    name
+ 1  -5.8740   0.0000     40.96     40.96     0.01      0.0     1.20   LSS1
+ 2  35.7020   0.0000     40.96     40.96     0.01      0.0     1.20   LSS2

@@ -1,10 +1,10 @@
-# Generated via uvex_response
+# author: uvex_response
 # source: jpl_24nm_mgf2_al
-# date_created: 2026-09-17
+# date_created: 2026-09-24
 # status: model
-# # wavelength_unit: nm
-# 
-# wavelength reflection
+# wavelength_unit: nm
+
+wavelength    reflection
 100.0 0.722532
 100.1 0.722532
 100.2 0.722532
