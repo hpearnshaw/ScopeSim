@@ -43,8 +43,6 @@ effects:
       fwhm: 2
       fwhm_unit: arcsec
 
-# No QE curve required as the filter is directly on the detector and thus incorporates QE
-
 # PSF effects
 # oversampling: Factor by which to oversample the image for convolution; the PSF is sampled to this resolution as well.
 #               This must divide into 10 (the PSF oversampling factor) and it must be <= 10, so options are 1,2,5,10

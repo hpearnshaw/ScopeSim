@@ -7,6 +7,7 @@
 # - 2026-03-05 (OA) Created detector array and added effects
 # - 2026-03-23 (HE) Added metadata
 # - 2026-06-12 (HE) Added linearity and Si bandgap
+# - 2026-10-02 (HE) Removed Si bandgap (now in bandpass)
 
 object: detector
 alias: DET
@@ -34,14 +35,6 @@ effects:
       pixsize_unit: mm
       angle_unit: deg
       gain_unit: electron/adu
-
-  # QE is intentionally NOT included here (handled separately for NUV and FUV)
-
-  - name: si_bandgap
-    description: Si band gap at ~1.1 um
-    class: QuantumEfficiencyCurve
-    kwargs:
-      filename: data_files/Si_bandgap.dat
 
   - name: exposure
     description: Expose for given exposure time DIT

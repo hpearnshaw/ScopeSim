@@ -10,6 +10,7 @@
 # - 2026-05-18 (OA) Implemented a data file for the coordinates of the detectors
 # - 2026-05-26 (ES) Reference instrument properties for detector center in sky coordinates
 # - 2026-06-12 (HE) Added linearity and Si bandgap
+# - 2026-10-02 (HE) Removed Si bandgap (now in bandpass)
 
 object: detector
 alias: DET
@@ -38,12 +39,6 @@ effects:
       pixsize_unit: mm
       angle_unit: deg
       gain_unit: electron/adu
-
-  - name: si_bandgap
-    description: Si band gap at ~1.1 um
-    class: QuantumEfficiencyCurve
-    kwargs:
-      filename: data_files/Si_bandgap.dat
 
   - name: lss_exposure
     description: Expose for given exposure time DIT

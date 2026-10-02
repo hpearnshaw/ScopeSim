@@ -8,6 +8,7 @@
 # - 2026-06-09 (OA) Added custom PSF effects
 # - 2026-06-09 (OA) Included FoV offset of 0.5 deg
 # - 2026-06-25 (OA) Added custom vignetting effects
+# - 2026-10-02 (HE) Removed QE (now in bandpass)
 
 object: instrument
 alias: INST
@@ -43,12 +44,6 @@ effects:
     kwargs:
       fwhm: 2
       fwhm_unit: arcsec
-
-  - name: qe_curve
-    description: Quantum efficiency curve for the NUV detector
-    class: QuantumEfficiencyCurve
-    kwargs:
-        filename: data_files/UVIM_NUV_QE.dat
 
 # PSF effects
 # oversampling: Factor by which to oversample the image for convolution; the PSF is sampled to this resolution as well.
