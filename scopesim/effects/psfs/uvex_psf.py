@@ -21,16 +21,7 @@ from pathlib import Path
 
 PLOT = True
 
-# Get absolute path to irdb directory
-try:
-    import irdb as _irdb
-    irdb_path = os.path.abspath(os.path.dirname(_irdb.__file__))
-except Exception: # should be four levels up
-    full_path = Path(__file__).resolve().parents[4] / "irdb"
-    if full_path.exists():
-        irdb_path = str(full_path)
-    else:
-        raise RuntimeError("Could not find irdb directory.")
+uvex_path = os.path.abspath(os.path.join(os.path.dirname(__file__),'..','..','..','UVEX'))
 
 class GriddedPSF(Effect):
     z_order: ClassVar[tuple[int, ...]] = (72, 672)
@@ -652,7 +643,7 @@ class UVIMImagerPSF(GriddedPSF):
         if path is not None:
             return path
 
-        for root, _, _ in os.walk(irdb_path):
+        for root, _, _ in os.walk(uvex_path):
             candidate = os.path.join(root, directory)
             if os.path.isdir(candidate):
                 return os.path.abspath(candidate)
@@ -891,7 +882,7 @@ class UVIMImagerPSF(GriddedPSF):
         obj.hdu.data = result + bkg
         return obj   
                      
-def find_directory(dir_name, search_root=irdb_path):
+def find_directory(dir_name, search_root=uvex_path):
     """Find directory by name and return its absolute path."""
     if dir_name is None:
         return None # prevent search if no directory
