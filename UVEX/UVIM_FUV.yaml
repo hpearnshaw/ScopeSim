@@ -7,6 +7,7 @@
 # - 2026-06-09 (OA) Added custom PSF effects
 # - 2026-06-09 (OA) Included FoV offset of 0.5 deg
 # - 2026-06-25 (OA) Added custom vignetting effects
+# - 2026-09-03 (OA) Added spectral range description
 
 object: instrument
 alias: INST
@@ -33,6 +34,7 @@ effects:
     include: True
     kwargs:
       filename: data_files/FUV_vignetting_model_4096.fits
+      detector_layout: data_files/CALDB/scopesim/UVIM_DET_layout.dat
       normalize: False
       interpolate: True
 
@@ -53,5 +55,25 @@ effects:
     include: True
     kwargs:
       directory: "FUV_PSF"
-      oversampling_x: 1
-      oversampling_y: 1
+      wavelength_dependent: false
+      
+# FUV-specific simulation parameters
+---
+object: simulation
+alias: SIM
+name: FUV_simulation_parameters
+description: simulation parameters for UVEX FUV imaging
+
+properties:
+  spectral:
+    wave_min: 0.1000
+    wave_mid: 0.6000
+    wave_max: 1.1000
+    wave_unit: um
+
+  computing:
+    oversampling_x: 1
+    oversampling_y: 1
+    psf_oversampling: 10
+    flux_accuracy: 1e-4
+    tile_size: 32

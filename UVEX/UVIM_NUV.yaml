@@ -8,6 +8,7 @@
 # - 2026-06-09 (OA) Added custom PSF effects
 # - 2026-06-09 (OA) Included FoV offset of 0.5 deg
 # - 2026-06-25 (OA) Added custom vignetting effects
+# - 2026-09-03 (OA) Added spectral range description
 # - 2026-10-02 (HE) Removed QE (now in bandpass)
 
 object: instrument
@@ -35,6 +36,7 @@ effects:
     include: True
     kwargs:
       filename: data_files/NUV_vignetting_model_4096.fits
+      detector_layout: data_files/CALDB/scopesim/UVIM_DET_layout.dat
       normalize: False
       interpolate: True
 
@@ -55,5 +57,43 @@ effects:
     include: True
     kwargs:
       directory: "NUV_PSF"
-      oversampling_x: 1
-      oversampling_y: 1
+
+      wavelength_dependent: true
+      inband_max_um: 0.270
+
+      wavelength_psf_libraries:
+        - wavelength_um: 0.300
+          directory: "NUV_Out-of-Band/300nm"
+
+        - wavelength_um: 0.400
+          directory: "NUV_Out-of-Band/400nm"
+
+        - wavelength_um: 0.500
+          directory: "NUV_Out-of-Band/500nm"
+
+        - wavelength_um: 0.700
+          directory: "NUV_Out-of-Band/700nm"
+
+        - wavelength_um: 1.000
+          directory: "NUV_Out-of-Band/1000nm"
+      
+# NUV-specific simulation parameters
+---
+object: simulation
+alias: SIM
+name: NUV_simulation_parameters
+description: simulation parameters for UVEX NUV imaging
+
+properties:
+  spectral:
+    wave_min: 0.1000
+    wave_mid: 0.6000
+    wave_max: 1.1000
+    wave_unit: um
+
+  computing:
+    oversampling_x: 1
+    oversampling_y: 1
+    psf_oversampling: 10
+    flux_accuracy: 1e-4
+    tile_size: 32

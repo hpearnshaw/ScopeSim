@@ -7,10 +7,11 @@ name: UVEX_default_config
 description: default configuration for UVEX imaging and spectroscopy
 status: development
 needs_scopesim: "v0.11.2"
-date_modified: 2026-02-18
+date_modified: 2026-09-03
 changes:
   - 2026-01-28 (HE) initial version
   - 2026-02-18 (ES) updated default LSS and spectral parameters
+  - 2026-09-03 (OA) moved spectral range description into the respective mode yaml files, loads only nuv by default
 
 packages:
   - UVEX
@@ -20,9 +21,9 @@ yamls:
 
 properties:
   instrument: UVEX
-  modes: [nuv, fuv, lss]
-  dit : 300
-  ndit : 1
+  modes: [nuv]
+  dit: 300
+  ndit: 1
 
 mode_yamls:
   - object: observation
@@ -51,19 +52,13 @@ mode_yamls:
     yamls:
       - UVIM_LSS.yaml
       - UVIM_DET_LSS.yaml
-
+      
 ---
 object: simulation
 alias: SIM
 name: UVEX_simulation_parameters
-description: simulation parameters for a UVEX observation
+description: global simulation parameters for a UVEX observation
 
 properties:
   random:
     seed: 9001
-
-  spectral:
-    wave_min: 0.1150
-    wave_mid: 0.2350
-    wave_max: 0.3550
-    wave_unit: um

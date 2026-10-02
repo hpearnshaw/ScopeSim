@@ -11,7 +11,8 @@
 # - 2026-02-11 (ES) Created the file
 # - 2026-02-26 (ES) Modified, only SM1 and SM3 needed
 # - 2026-03-23 (HE) Updated location of reflectivity file
+# - 2026-10-02 (HE) Updated location of reflectivity file to CALDB
 #
 name     outer  inner  angle  temperature  action      filename
-SM1       0.23    0.     0.     0.         reflection  data_files/mirror_reflectivity.dat
-SM3       0.32    0.     0.     0.         reflection  data_files/mirror_reflectivity.dat
+SM1       0.23    0.     0.     0.         reflection  data_files/CALDB/scopesim/mirror_reflectivity.dat
+SM3       0.32    0.     0.     0.         reflection  data_files/CALDB/scopesim/mirror_reflectivity.dat

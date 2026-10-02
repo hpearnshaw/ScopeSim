@@ -10,7 +10,7 @@
 # - 2026-05-18 (OA) Implemented a data file for the coordinates of the detectors
 # - 2026-05-26 (ES) Reference instrument properties for detector center in sky coordinates
 # - 2026-06-12 (HE) Added linearity and Si bandgap
-# - 2026-10-02 (HE) Removed Si bandgap (now in bandpass)
+# - 2026-10-02 (HE) Removed Si bandgap (now in bandpass); updated inputs location to CALDB
 
 object: detector
 alias: DET
@@ -29,16 +29,9 @@ effects:
     class: DetectorList
     include: True
     kwargs:
-      filename: data_files/UVIM_DET_LSS_layout.dat
+      filename: data_files/CALDB/scopesim/UVIM_DET_LSS_layout.dat
       fov_x_cen: "!INST.fov_x0" # [arcsec]
-      fov_y_cen: "!INST.fov_y0" # [arcsec]
-      x_cen_unit: mm
-      y_cen_unit: mm
-      x_size_unit: mm
-      y_size_unit: mm
-      pixsize_unit: mm
-      angle_unit: deg
-      gain_unit: electron/adu
+      fov_y_cen: "!INST.fov_y0" # [arcsec] 
 
   - name: lss_exposure
     description: Expose for given exposure time DIT
@@ -61,7 +54,7 @@ effects:
     description: Detector linearity and saturation characteristics
     class: LinearityCurve
     kwargs:
-      filename: data_files/UVIM_DET_linearity.dat
+      filename: data_files/CALDB/scopesim/UVIM_DET_linearity.dat
 
   - name: lss_inter_pixel_capacitance
     description: Inter-pixel capacitance (IPC) convolution kernel

@@ -7,7 +7,7 @@
 # - 2026-03-05 (OA) Created detector array and added effects
 # - 2026-03-23 (HE) Added metadata
 # - 2026-06-12 (HE) Added linearity and Si bandgap
-# - 2026-10-02 (HE) Removed Si bandgap (now in bandpass)
+# - 2026-10-02 (HE) Removed Si bandgap (now in bandpass); updated inputs location to CALDB
 
 object: detector
 alias: DET
@@ -27,14 +27,7 @@ effects:
     class: DetectorList
     include: True
     kwargs:
-      filename: data_files/UVIM_DET_layout.dat
-      x_cen_unit: mm
-      y_cen_unit: mm
-      x_size_unit: mm
-      y_size_unit: mm
-      pixsize_unit: mm
-      angle_unit: deg
-      gain_unit: electron/adu
+      filename: data_files/CALDB/scopesim/UVIM_DET_layout.dat
 
   - name: exposure
     description: Expose for given exposure time DIT
@@ -54,7 +47,7 @@ effects:
     description: Detector linearity and saturation characteristics
     class: LinearityCurve
     kwargs:
-      filename: data_files/UVIM_DET_linearity.dat
+      filename: data_files/CALDB/scopesim/UVIM_DET_linearity.dat
 
   - name: inter_pixel_capacitance
     description: Inter-pixel capacitance (IPC) convolution kernel

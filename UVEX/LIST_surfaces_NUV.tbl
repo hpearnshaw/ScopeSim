@@ -9,8 +9,9 @@
 # - 2026-03-06 (ES) Added dichroic transmission
 # - 2026-03-23 (HE) Updated location of response files
 # - 2026-04-13 (ES) Added effective throughput due to contamination
-
+# - 2026-10-02 (HE) Updated location of input files to CALDB
+#
 name                 action          filename
-NUV_Filter           transmission    data_files/UVIM_NUV_filter_response.dat
-NUV_Dichroic         transmission    data_files/UVIM_dichroic_response.dat
-NUV_Contamination    transmission    data_files/UVIM_NUV_contamination.dat
+NUV_Filter           transmission    data_files/CALDB/scopesim/UVIM_NUV_filter_response.dat
+NUV_Dichroic         transmission    data_files/CALDB/scopesim/UVIM_dichroic_response.dat
+NUV_Contamination    transmission    data_files/CALDB/scopesim/UVIM_NUV_contamination.dat

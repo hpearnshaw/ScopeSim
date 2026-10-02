@@ -8,6 +8,7 @@
 # - 2026-04-06 (ES) Added custom PSF effects
 # - 2026-04-09 (ES) Updated PSF effects to include oversampling options
 # - 2026-05-26 (ES) Added properties for slit center in sky coordinates
+# - 2026-10-02 (HE) Updated inputs location to CALDB
 
 object: instrument
 alias: INST
@@ -40,7 +41,7 @@ effects:
     description: slit geometry on the focal plane
     class: UVEXSlitMask
     kwargs:
-      filename: "data_files/UVIM_LSS_slit_geometry.dat"
+      filename: "data_files/CALDB/scopesim/UVIM_LSS_slit_geometry.dat"
 
   - name: relay_optics
     description: list of extra mirrors needed for the spectroscopy mode
@@ -52,14 +53,14 @@ effects:
     description: grating efficiency
     class: SpectralEfficiency
     kwargs:
-      filename: "data_files/UVIM_LSS_spectral_efficiency.fits"
+      filename: "data_files/CALDB/scopesim/UVIM_LSS_spectral_efficiency.fits"
 
   - name: spectral_traces
     description: spectral trace geometry on the focal plane
     class: SpectralTraceList
     kwargs:
       filename: "data_files/UVIM_LSS_spectral_trace.fits"
-      dispersion_file: "data_files/UVIM_LSS_dispersion.dat"
+      dispersion_file: "data_files/CALDB/scopesim/UVIM_LSS_dispersion.dat"
 
   - name : surfaces
     description : surfaces list for the spectroscopy mode
