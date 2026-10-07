@@ -25,11 +25,6 @@ properties:
   fov_unit: arcsec
 
 effects:
-  - name: oversample_image
-    description: oversample the image in the spatial directions for subpixel accuracy
-    class: Oversample
-    include: True
-
   - name: slit_psf
     description: PSF at the slit
     class: SlitPSF
@@ -75,11 +70,6 @@ effects:
     kwargs:
       directory: "LSS_DET_PSF"
 
-  - name: downsample_image
-    description: downsample the image to native pixel resolution after it has been oversampled
-    class: Downsample
-    include: True
-
 # LSS-specific simulation parameters
 ---
 object: simulation
@@ -102,12 +92,13 @@ properties:
     oversampling_y: 2
     psf_oversampling: 10 # however much the input psfs are oversampled: don't change!
     flux_accuracy: 1e-4 # requirement on flux conservation when convolution is applied
-    tile_size: 64
+    tile_size: 32
     crop_x: [-13.2, 13.2] # The arcsec bounds in spectral direction relative to slit center (must be large enough for accurate convolution at the slit before applying the slit mask)
                           # Value tuned so that:
                           #     (1) Image subtends an exact, odd pixel count at native resolution
                           #     (2) Pixel width > tile size of 32
                           #     (3) Center of image coincides with center of the slit
+                          # NOTE: in later versions, the centering may be improved so as not to be so sensitive to this value
     crop_y: [-30.,30.] # The arcsec bounds in spatial direction relative to slit center. Helps fit an oversampled image in memory where the region of interest is small. Set to None for full image.
     crop_unit: arcsec
 

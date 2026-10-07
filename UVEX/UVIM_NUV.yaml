@@ -30,27 +30,7 @@ effects:
     kwargs:
       filename: LIST_surfaces_NUV.tbl
 
-  - name: illumination
-    description: image-plane vignetting from interpolated FITS map
-    class: FitsIllumination
-    include: True
-    kwargs:
-      filename: data_files/NUV_vignetting_model_4096.fits
-      detector_layout: data_files/CALDB/scopesim/UVIM_DET_layout.dat
-      normalize: False
-      interpolate: True
-
-  - name: psf
-    class: SeeingPSF
-    include: False
-    kwargs:
-      fwhm: 2
-      fwhm_unit: arcsec
-
 # PSF effects
-# oversampling: Factor by which to oversample the image for convolution; the PSF is sampled to this resolution as well.
-#               This must divide into 10 (the PSF oversampling factor) and it must be <= 10, so options are 1,2,5,10
-
   - name: detector_psf
     description: PSF on the detector
     class: UVIMImagerPSF
@@ -58,8 +38,8 @@ effects:
     kwargs:
       directory: "NUV_PSF"
 
-      wavelength_dependent: true
       inband_max_um: 0.270
+      wavelength_dependent: True
 
       wavelength_psf_libraries:
         - wavelength_um: 0.300
@@ -76,6 +56,33 @@ effects:
 
         - wavelength_um: 1.000
           directory: "NUV_Out-of-Band/1000nm"
+
+# Wavelength-dependence turned off for comparison purposes
+  - name: detector_psf_noredleak
+    description: PSF on the detector
+    class: UVIMImagerPSF
+    include: False
+    kwargs:
+      directory: "NUV_PSF"
+      wavelength_dependent: False
+
+# Old Gaussian PSF effect for comparison purposes
+  - name: psf
+    class: SeeingPSF
+    include: False
+    kwargs:
+      fwhm: 2
+      fwhm_unit: arcsec
+
+  - name: illumination
+    description: image-plane vignetting from interpolated FITS map
+    class: FitsIllumination
+    include: True
+    kwargs:
+      filename: data_files/NUV_vignetting_model_4096.fits
+      detector_layout: data_files/CALDB/scopesim/UVIM_DET_layout.dat
+      normalize: False
+      interpolate: True
       
 # NUV-specific simulation parameters
 ---

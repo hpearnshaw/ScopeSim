@@ -28,6 +28,23 @@ effects:
     kwargs:
       filename: LIST_surfaces_FUV.tbl
 
+# PSF effects
+  - name: detector_psf
+    description: PSF on the detector
+    class: UVIMImagerPSF
+    include: True
+    kwargs:
+      directory: "FUV_PSF"
+      wavelength_dependent: false
+
+# Old Gaussian PSF effect for comparison purposes
+  - name: psf
+    class: SeeingPSF
+    include: False
+    kwargs:
+      fwhm: 2
+      fwhm_unit: arcsec
+
   - name: illumination
     description: image-plane vignetting from interpolated FITS map
     class: FitsIllumination
@@ -37,25 +54,6 @@ effects:
       detector_layout: data_files/CALDB/scopesim/UVIM_DET_layout.dat
       normalize: False
       interpolate: True
-
-  - name: psf
-    class: SeeingPSF
-    include: False
-    kwargs:
-      fwhm: 2
-      fwhm_unit: arcsec
-
-# PSF effects
-# oversampling: Factor by which to oversample the image for convolution; the PSF is sampled to this resolution as well.
-#               This must divide into 10 (the PSF oversampling factor) and it must be <= 10, so options are 1,2,5,10
-
-  - name: detector_psf
-    description: PSF on the detector
-    class: UVIMImagerPSF
-    include: True
-    kwargs:
-      directory: "FUV_PSF"
-      wavelength_dependent: false
       
 # FUV-specific simulation parameters
 ---
