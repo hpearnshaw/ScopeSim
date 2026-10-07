@@ -16,123 +16,15 @@ class UVEXInputs:
         # Ingest configuration file
         with open(os.path.join(self.uvex_dir,"config.yaml"), 'r') as f:
             config = yaml.safe_load(f)
-            
-        # Check if you want to back up existing config
-            
-        # Generate IRDB data files from given inputs
-        self.make_reflectivity(infile=config['telescope']['mirror_reflectivity_file'])
-        self.make_contamination(thickness_infile=config['telescope']['contamination']['thickness_file'], 
-                                coeff_infile=config['telescope']['contamination']['absorption_coefficient_file'],
-                                stage=config['telescope']['contamination']['stage'])
-        
-        # Load detector parameters
-        self.n_pixels = config['detector']['n_pixels']
-        self.pix_size = u.Quantity(config['detector']['pix_size'])
-        self.x_gap = u.Quantity(config['detector']['x_gap'])
-        self.y_gap = u.Quantity(config['detector']['y_gap'])
-        self.gain = u.Quantity(config['detector']['gain'])
-        self.angle = u.Quantity(config['detector']['angle'])
-
-        # Make detector layout
-        self.make_detector_layout()
-        
-        # Load imager parameters
-        self.im_pixel_scale = u.Quantity(config['imager']['pixel_scale'])
-        self.im_plate_scale = 103.0 * u.arcsec / u.mm
-        
-        # Make imager inputs
-        self.make_qe_curve(infile=config['imager']['nuv_qe_file'])
-        self.make_nuv_filter(infile=config['imager']['nuv_filter_file'])
-        self.make_fuv_filter(infile=config['imager']['fuv_filter_file'])
-        self.make_dichroic_response(infile=config['imager']['dichroic_file'])
-        
-        # Load LSS parameters
-        self.lss_x_0 = u.Quantity(config['lss']['slit_x_0'])
-        self.lss_y_0 = u.Quantity(config['lss']['slit_y_0'])
-        self.slit_length = u.Quantity(config['lss']['slit_length'])
-        self.slit_width = u.Quantity(config['lss']['slit_width'])
-        self.lss_pixel_scale = u.Quantity(config['lss']['pixel_scale'])
-        self.lss_plate_scale = self.lss_pixel_scale / self.pix_size
-        self.lss_wave_min = u.Quantity(config['lss']['wave_min'])
-        self.lss_wave_max = u.Quantity(config['lss']['wave_max'])
-        self.y_distortion = bool(config['lss']['y_distortion'])
         
         # Make LSS inputs
-        self.make_slit_geometry()
-        self.make_spectral_efficiency(infile=config['lss']['spectral_efficiency_file'])
+        self.y_distortion = bool(config['lss']['y_distortion'])
         self.make_spectral_trace(indir=config['lss']['detector_psf_dir'])
-        self.make_dispersion_file(infile=config['lss']['dispersion_file'])
-        self.make_lss_filter_response(infile=config['lss']['filter_file'])
 
-        # Load LSS detector parameters
-        self.lss_n_pixels = config['lss_detector']['n_pixels']
-        self.lss_pix_size = u.Quantity(config['lss_detector']['pix_size'])
-        self.lss_x_gap = u.Quantity(config['lss_detector']['x_gap'])
-        self.lss_gain = u.Quantity(config['lss_detector']['gain'])
-        self.lss_angle = u.Quantity(config['lss_detector']['angle'])
-        self.lss_x1_cen = u.Quantity(config['lss_detector']['x1_cen'])
-        self.lss_y1_cen = u.Quantity(config['lss_detector']['y1_cen'])
-
-        # Make LSS detector layout
-        self.make_detector_layout_lss()
-                
-    def make_reflectivity(self, infile="mirror_reflectivity.dat", outfile="mirror_reflectivity.dat"):
-        # For now, straight up copy the file over
-        # We'll make a parser once new technical data comes in
-        import shutil
-        shutil.copyfile(os.path.join(self.inputs_dir,infile), os.path.join(self.outputs_dir,outfile))
-        
-    def make_spectral_efficiency(self, infile="zeiss_blaze_v1.txt", outfile="UVIM_LSS_spectral_efficiency.fits"):
-        # Load spectral efficiency file
-        spec_eff = np.loadtxt(os.path.join(self.inputs_dir, infile))
-        spec_eff_dict = {"wavelength": spec_eff[:, 0] * u.nm, "efficiency": spec_eff[:, 1]}
-        # convert from nm to microns
-        spec_eff_dict["wavelength"] = spec_eff_dict["wavelength"].to(u.um).value
-        # only one trace
-        # required fits structure is located in spectral_efficiency in scopesim
-        hdu0 = fits.PrimaryHDU()
-        hdu0.header["ECAT"] = 1
-        hdu0.header["EDATA"] = 2
-        hdu0.header["DATE"] = np.datetime64('today', 'D').astype(str)
-        hdu0.header["ORIGFILE"] = infile
-        hdu1 = fits.BinTableHDU.from_columns(
-            [fits.Column(name="description", format="20A", array=["UVIM_LSS_trace"]),
-            fits.Column(name="extension_id", format="I", array=[2])]
-        )
-        hdu2 = fits.BinTableHDU.from_columns(
-            [fits.Column(name="wavelength", format="E", array=spec_eff_dict["wavelength"]),
-            fits.Column(name="efficiency", format="E", array=spec_eff_dict["efficiency"])]
-        )
-        hdu2.header["EXTNAME"] = "UVIM_LSS_trace"
-        hdul = fits.HDUList([hdu0, hdu1, hdu2])
-        hdul.writeto(os.path.join(self.outputs_dir, outfile), overwrite=True)
-        
-        
-    def make_slit_geometry(self, outfile="UVIM_LSS_slit_geometry.dat"):
-        # Ensure slit dimensions are in the right units
-        slit_length = (self.slit_length).to(u.arcsec).value
-        slit_width = (self.slit_width).to(u.arcsec).value
-        # relative to the field origin, located at x=3.5 deg, y=0 deg
-        # y is the spatial direction, x is the spectral
-        x_0 = (self.lss_x_0).to(u.arcsec).value
-        y_0 = (self.lss_y_0).to(u.arcsec).value
-        slit_coords = np.array([[x_0 - slit_width/2, y_0 - slit_length/2],
-                                [x_0 + slit_width/2, y_0 - slit_length/2],
-                                [x_0 + slit_width/2, y_0 + slit_length/2],
-                                [x_0 - slit_width/2, y_0 + slit_length/2]])
-        # write to dat file (allow overwrite)
-        with open(os.path.join(self.outputs_dir, outfile), 'w') as f:
-            f.write(f"# date_modified : {np.datetime64('today', 'D').astype(str)}\n")
-            f.write("# x_unit : arcsec\n")
-            f.write("# y_unit : arcsec\n")
-            f.write("x    y\n")
-            for x, y in zip(slit_coords[:,0], slit_coords[:,1]):
-                f.write(f"{x}    {y}\n")
-        
     def make_spectral_trace(self, outfile="UVIM_LSS_spectral_trace.fits", indir="LSS_DET_PSF"):
         """Create a spectral trace file for the LSS mode which encodes the distortion along the slit spatial axis."""
         
-        det_psf_dir = os.path.abspath(os.path.join(self.inputs_dir, indir))
+        det_psf_dir = os.path.abspath(os.path.join(self.outputs_dir, indir))
         det_psf_files = [f for f in os.listdir(det_psf_dir) if f.endswith('.fits')]
         det_psf_files = sorted(det_psf_files)
 
@@ -200,6 +92,64 @@ class UVEXInputs:
         hdu2.header["SLITPOSN"] = "s"
         hdul = fits.HDUList([hdu0, hdu1, hdu2])
         hdul.writeto(os.path.join(self.outputs_dir, outfile), overwrite=True)
+
+'''
+    Note that these below functions create files that are now generated in the
+    uvex_response repository. They are kept here for posterity but shouldn't be
+    used to generate UVEX input files that now come from the CALDB.
+'''
+    def make_reflectivity(self, infile="mirror_reflectivity.dat", outfile="mirror_reflectivity.dat"):
+        # For now, straight up copy the file over
+        # We'll make a parser once new technical data comes in
+        import shutil
+        shutil.copyfile(os.path.join(self.inputs_dir,infile), os.path.join(self.outputs_dir,outfile))
+        
+    def make_spectral_efficiency(self, infile="zeiss_blaze_v1.txt", outfile="UVIM_LSS_spectral_efficiency.fits"):
+        # Load spectral efficiency file
+        spec_eff = np.loadtxt(os.path.join(self.inputs_dir, infile))
+        spec_eff_dict = {"wavelength": spec_eff[:, 0] * u.nm, "efficiency": spec_eff[:, 1]}
+        # convert from nm to microns
+        spec_eff_dict["wavelength"] = spec_eff_dict["wavelength"].to(u.um).value
+        # only one trace
+        # required fits structure is located in spectral_efficiency in scopesim
+        hdu0 = fits.PrimaryHDU()
+        hdu0.header["ECAT"] = 1
+        hdu0.header["EDATA"] = 2
+        hdu0.header["DATE"] = np.datetime64('today', 'D').astype(str)
+        hdu0.header["ORIGFILE"] = infile
+        hdu1 = fits.BinTableHDU.from_columns(
+            [fits.Column(name="description", format="20A", array=["UVIM_LSS_trace"]),
+            fits.Column(name="extension_id", format="I", array=[2])]
+        )
+        hdu2 = fits.BinTableHDU.from_columns(
+            [fits.Column(name="wavelength", format="E", array=spec_eff_dict["wavelength"]),
+            fits.Column(name="efficiency", format="E", array=spec_eff_dict["efficiency"])]
+        )
+        hdu2.header["EXTNAME"] = "UVIM_LSS_trace"
+        hdul = fits.HDUList([hdu0, hdu1, hdu2])
+        hdul.writeto(os.path.join(self.outputs_dir, outfile), overwrite=True)
+        
+        
+    def make_slit_geometry(self, outfile="UVIM_LSS_slit_geometry.dat"):
+        # Ensure slit dimensions are in the right units
+        slit_length = (self.slit_length).to(u.arcsec).value
+        slit_width = (self.slit_width).to(u.arcsec).value
+        # relative to the field origin, located at x=3.5 deg, y=0 deg
+        # y is the spatial direction, x is the spectral
+        x_0 = (self.lss_x_0).to(u.arcsec).value
+        y_0 = (self.lss_y_0).to(u.arcsec).value
+        slit_coords = np.array([[x_0 - slit_width/2, y_0 - slit_length/2],
+                                [x_0 + slit_width/2, y_0 - slit_length/2],
+                                [x_0 + slit_width/2, y_0 + slit_length/2],
+                                [x_0 - slit_width/2, y_0 + slit_length/2]])
+        # write to dat file (allow overwrite)
+        with open(os.path.join(self.outputs_dir, outfile), 'w') as f:
+            f.write(f"# date_modified : {np.datetime64('today', 'D').astype(str)}\n")
+            f.write("# x_unit : arcsec\n")
+            f.write("# y_unit : arcsec\n")
+            f.write("x    y\n")
+            for x, y in zip(slit_coords[:,0], slit_coords[:,1]):
+                f.write(f"{x}    {y}\n")
 
     def make_lss_filter_response(self, infile="graded_overcoat_00nm.csv", outfile="UVIM_LSS_filter_response.dat"):
         # filter response file contains wavelength to transmission mapping
