@@ -60,10 +60,6 @@ class UserCommands(NestedChainMap):
     use_instrument : str, optional
         The name of the main instrument to use
 
-    packages : list, optional
-        list of package names needed for the optical system, so that ScopeSim
-        can find the relevant files. E.g. ["Armazones", "ELT", "MICADO"]
-
     yamls : list, optional
         list of yaml filenames that are needed for the combined optical system
         E.g. ["MICADO_Standalone_RO.yaml", "MICADO_H4RG.yaml", "MICADO_.yaml"]
@@ -96,27 +92,6 @@ class UserCommands(NestedChainMap):
         values here are accessible globally by all ``Effects`` objects in an
         ``OpticalTrain`` once the ``UserCommands`` has been passed to the
         ``OpticalTrain``.
-
-    yaml_dicts : list of dicts
-        Where all the effects dictionaries are stored
-
-
-    Examples
-    --------
-    Here we use a combination of the main parameters: ``packages``, ``yamls``,
-    and ``properties``. When not using the ``use_instrument`` key, ``packages``
-    and ``yamls`` must be specified, otherwise scopesim will not know
-    where to look for yaml files (only relevant if reading in yaml files)::
-
-    >>> from scopesim.server.database import download_package
-    >>> from scopesim.commands import UserCommands
-    >>>
-    >>> download_package("test_package")
-    >>> cmd = UserCommands(packages=["test_package"],
-    ...                    yamls=["test_telescope.yaml",
-    ...                           {"alias": "ATMO",
-    ...                            "properties": {"pwv": 9001}}],
-    ...                    properties={"!ATMO.pwv": 8999})
 
     Notes
     -----
@@ -170,7 +145,7 @@ class UserCommands(NestedChainMap):
         #       e.g. properties gets emptied, not sure why
         self._kwargs = deepcopy(kwargs)
         self.ignore_effects = []
-        self.package_name = ""
+        self.package_name = "UVEX"
         self.package_status = ""
         self.default_yamls = []
         self.modes_dict = {}
@@ -223,8 +198,6 @@ class UserCommands(NestedChainMap):
                     "instrument, use with care."
                 )
 
-            check_version(yaml_dict)
-
         logger.debug("      dict yaml done")
 
     def _load_yamls(self, yamls: Collection) -> None:
@@ -265,7 +238,7 @@ class UserCommands(NestedChainMap):
             self.package_name = kwargs["use_instrument"]
             self.update(packages=[kwargs["use_instrument"]],
                         yamls=["default.yaml"])
-
+            
             # check_for_updates(self.package_name)
 
         if "packages" in kwargs:
@@ -394,8 +367,6 @@ class UserCommands(NestedChainMap):
                         f"Instrument mode '{mode}' is not yet supported."
                     )
 
-                check_version(self.modes_dict[mode], mode=mode)
-
         # Note: This used to completely reset the instance via the line below.
         #       Calling init like this is bad design, so I replaced is with a
         #       more manual reset.
@@ -443,22 +414,6 @@ class UserCommands(NestedChainMap):
             printer.text("UserCommands(...)")
         else:
             printer.text(str(self))
-
-
-def check_for_updates(package_name):
-    """Ask IRDB server if there are newer versions of instrument package."""
-    response = {}
-
-    # tracking **exclusively** your IP address for our internal stats
-    if rc.__currsys__["!SIM.reports.ip_tracking"]:
-        front_matter = str(rc.__currsys__["!SIM.file.server_base_url"])
-        back_matter = f"api.php?package_name={package_name}"
-        try:
-            response = httpx.get(url=front_matter+back_matter).json()
-        except httpx.HTTPError:
-            logger.warning("Offline. Cannot check for updates for %s.",
-                           package_name)
-    return response
 
 
 def patch_fake_symlinks(path: Path):
@@ -510,6 +465,25 @@ def patch_fake_symlinks(path: Path):
     return patch_fake_symlinks(pathup / path.name)
 
 
+def load_yaml_dicts(filename: str) -> list[dict[str, Any]]:
+    """
+    Load one or more dicts stored in a YAML file under `filename`.
+
+    Parameters
+    ----------
+    filename : str
+        Path to the YAML file
+
+    Returns
+    -------
+    yaml_dicts : list
+        A list of dicts
+
+    """
+    with open(filename, encoding="utf-8") as file:
+        return list(yaml.full_load_all(file))
+
+
 def add_packages_to_rc_search(local_path, package_list):
     """
     Add the paths of a list of locally saved packages to the search path list.
@@ -545,138 +519,3 @@ def add_packages_to_rc_search(local_path, package_list):
                     logger.warning("Package could not be found: %s", pkg_dir)
 
         rc.__search_path__.append_first(pkg_dir)
-
-
-def load_yaml_dicts(filename: str) -> list[dict[str, Any]]:
-    """
-    Load one or more dicts stored in a YAML file under `filename`.
-
-    Parameters
-    ----------
-    filename : str
-        Path to the YAML file
-
-    Returns
-    -------
-    yaml_dicts : list
-        A list of dicts
-
-    """
-    with open(filename, encoding="utf-8") as file:
-        return list(yaml.full_load_all(file))
-
-
-def list_local_packages(action="display"):
-    """
-    List the packages on the local disk that ScopeSim can find.
-
-    Packages can only be found in the directory listed under::
-
-        scopesim.rc.__config__["!SIM.file.local_packages_path"]
-
-    Packages are divided into "main" packages and "extension" packages.
-
-    - Main packages contain a ``default.yaml`` file which tell ScopeSim which
-      other packages are required to generate the full optical system
-    - Extension packages contain only the data files needed to support the
-      effects listed in the package YAML file
-
-    .. note::
-       Only "main" packages can be passed to a UserCommands object using the
-       ``use_instrument=...`` parameter
-
-    Parameters
-    ----------
-    action : str, optional
-        ["display", "return"] What to do with the output.
-        - "display": the list of packages are printed to the screen
-        - "return": package names are returned in lists
-
-    Returns
-    -------
-    main_pkgs, ext_pkgs : lists
-        If action="return": Lists containing the names of locally saved packages
-
-    """
-    local_path = Path(rc.__config__["!SIM.file.local_packages_path"]).absolute()
-    pkgs = [d for d in local_path.iterdir() if d.is_dir()]
-
-    main_pkgs = [pkg for pkg in pkgs if (pkg/"default.yaml").exists()]
-    ext_pkgs = [pkg for pkg in pkgs if not (pkg/"default.yaml").exists()]
-
-    if action == "display":
-        msg = (f"\nLocal package directory:\n  {local_path}\n"
-               "Full packages [can be used with 'use_instrument=...']\n"
-               f"{main_pkgs}\n"
-               f"Support packages\n  {ext_pkgs}")
-        print(msg)
-    else:
-        return main_pkgs, ext_pkgs
-
-
-def check_version(yaml_dict: Mapping, mode: str | None = None) -> None:
-    """
-    Check if ScopeSim version required by instrument package or mode is met.
-
-    Check the `yaml_dict` for a key named "needs_scopesim". If found, try to
-    parse it into a version number and compare that to the currently installed
-    ScopeSim version. If a higher version is required for the selected
-    instrument package or mode, raise an exception. If the key is not found in
-    the yaml, silently proceed for backwards compatibility.
-
-    This can be called from either the top level of an instrument package's
-    default.yaml, in which case the version requirement is interpreted to apply
-    to the entire package as a minimum. If called from a "mode_yamls" section,
-    the requirement is interpreted to apply only to that mode. Different modes
-    in the same package may have different requirements, e.g. if one mode needs
-    an effect that was only added in a recent ScopeSim version, but the other
-    modes work without it. Note that a version requirement in the package level
-    (if any) serves as a minimum, meaning any mode can only have a stricter
-    requirement (or none, in which case the package level is used).
-
-    .. note::
-
-       The value for any "needs_scopesim" key must be prefixed by a "v", e.g.:
-
-           needs_scopesim: "v0.10"
-
-    .. versionadded:: 0.10.0
-
-    Parameters
-    ----------
-    yaml_dict : Mapping
-        Top-level or mode-level dict from the package's default.yaml.
-    mode : str | None, optional
-        Name of the mode if called from a mode section. If None (the default),
-        assumes called from the package top level. Only used for more
-        meaningful error message.
-
-    Raises
-    ------
-    NotImplementedError
-        Raised if the currently installed ScopeSim version is less than the
-        version required by the loaded instrument package or mode.
-
-    ValueError
-        Raised if version number does not start with "v" (see notes).
-
-    Returns
-    -------
-    None.
-
-    """
-    if (needs_scopesim := yaml_dict.get("needs_scopesim")) is None:
-        return  # needs_scopesim key not present -> None
-
-    if not needs_scopesim.startswith("v"):
-        raise ValueError(
-            "Version number in 'needs_scopesim' must start with 'v'.")
-
-    needs_scopesim = parse(needs_scopesim)
-    if __version__ < needs_scopesim:
-        msg = f"Mode {mode}" if mode else "The selected instrument package"
-        raise NotImplementedError(
-            f"{msg} requires ScopeSim version {needs_scopesim}, but version "
-            f"{__version__} is installed. Please update your ScopeSim "
-            "installation by running 'pip install -U scopesim'."
-        )

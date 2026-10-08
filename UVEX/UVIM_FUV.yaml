@@ -1,0 +1,77 @@
+# author : Hannah Earnshaw
+# date_created : 2026-03-23
+# date_modified : 2026-03-23
+# status : development
+# changes :
+# - 2026-03-23 (HE) Created file
+# - 2026-06-09 (OA) Added custom PSF effects
+# - 2026-06-09 (OA) Included FoV offset of 0.5 deg
+# - 2026-06-25 (OA) Added custom vignetting effects
+# - 2026-09-03 (OA) Added spectral range description
+
+object: instrument
+alias: INST
+name: FUV
+description: base configuration for UVIM FUV imaging plane
+
+properties:
+  pixel_scale: 1.03  # arcsec / pixel
+  plate_scale: 103   # arcsec / mm
+  # Location of instrument center with respect to sky origin
+  fov_x0: -1800      # arcsec = -0.5 deg
+  fov_y0: 0.0       # arcsec
+
+effects:
+  - name: fuv_surfaces
+    description: surfaces list for FUV imaging, including the filter and dichroic transmission
+    class: SurfaceList
+    kwargs:
+      filename: LIST_surfaces_FUV.tbl
+
+# PSF effects
+  - name: detector_psf
+    description: PSF on the detector
+    class: UVIMImagerPSF
+    include: True
+    kwargs:
+      directory: "FUV_PSF"
+      wavelength_dependent: false
+
+# Old Gaussian PSF effect for comparison purposes
+  - name: psf
+    class: SeeingPSF
+    include: False
+    kwargs:
+      fwhm: 2
+      fwhm_unit: arcsec
+
+  - name: illumination
+    description: image-plane vignetting from interpolated FITS map
+    class: FitsIllumination
+    include: True
+    kwargs:
+      filename: data_files/FUV_vignetting_model_4096.fits
+      detector_layout: data_files/CALDB/scopesim/UVIM_DET_layout.dat
+      normalize: False
+      interpolate: True
+      
+# FUV-specific simulation parameters
+---
+object: simulation
+alias: SIM
+name: FUV_simulation_parameters
+description: simulation parameters for UVEX FUV imaging
+
+properties:
+  spectral:
+    wave_min: 0.1000
+    wave_mid: 0.6000
+    wave_max: 1.1000
+    wave_unit: um
+
+  computing:
+    oversampling_x: 1
+    oversampling_y: 1
+    psf_oversampling: 10
+    flux_accuracy: 1e-4
+    tile_size: 32
