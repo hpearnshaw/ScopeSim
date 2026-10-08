@@ -1,0 +1,106 @@
+# author : Hannah Earnshaw
+# date_created : 2026-01-28
+# date_modified : 2026-03-23
+# status : development
+# changes :
+# - 2026-01-28 (HE) Created file
+# - 2026-03-23 (HE) Updated data file locations
+# - 2026-06-09 (OA) Added custom PSF effects
+# - 2026-06-09 (OA) Included FoV offset of 0.5 deg
+# - 2026-06-25 (OA) Added custom vignetting effects
+# - 2026-09-03 (OA) Added spectral range description
+# - 2026-10-02 (HE) Removed QE (now in bandpass)
+
+object: instrument
+alias: INST
+name: NUV
+description: base configuration for UVIM NUV imaging plane
+
+properties:
+  pixel_scale: 1.03  # arcsec / pixel
+  plate_scale: 103   # arcsec / mm
+  # Location of instrument center with respect to sky origin
+  fov_x0: -1800      # arcsec = -0.5 deg
+  fov_y0: 0.0
+
+effects:
+  - name: nuv_surfaces
+    description: surfaces list for NUV imaging, including the filter and dichroic transmission
+    class: SurfaceList
+    kwargs:
+      filename: LIST_surfaces_NUV.tbl
+
+# PSF effects
+  - name: detector_psf
+    description: PSF on the detector
+    class: UVIMImagerPSF
+    include: True
+    kwargs:
+      directory: "NUV_PSF"
+
+      inband_max_um: 0.270
+      wavelength_dependent: True
+
+      wavelength_psf_libraries:
+        - wavelength_um: 0.300
+          directory: "NUV_Out-of-Band/300nm"
+
+        - wavelength_um: 0.400
+          directory: "NUV_Out-of-Band/400nm"
+
+        - wavelength_um: 0.500
+          directory: "NUV_Out-of-Band/500nm"
+
+        - wavelength_um: 0.700
+          directory: "NUV_Out-of-Band/700nm"
+
+        - wavelength_um: 1.000
+          directory: "NUV_Out-of-Band/1000nm"
+
+# Wavelength-dependence turned off for comparison purposes
+  - name: detector_psf_noredleak
+    description: PSF on the detector
+    class: UVIMImagerPSF
+    include: False
+    kwargs:
+      directory: "NUV_PSF"
+      wavelength_dependent: False
+
+# Old Gaussian PSF effect for comparison purposes
+  - name: psf
+    class: SeeingPSF
+    include: False
+    kwargs:
+      fwhm: 2
+      fwhm_unit: arcsec
+
+  - name: illumination
+    description: image-plane vignetting from interpolated FITS map
+    class: FitsIllumination
+    include: True
+    kwargs:
+      filename: data_files/NUV_vignetting_model_4096.fits
+      detector_layout: data_files/CALDB/scopesim/UVIM_DET_layout.dat
+      normalize: False
+      interpolate: True
+      
+# NUV-specific simulation parameters
+---
+object: simulation
+alias: SIM
+name: NUV_simulation_parameters
+description: simulation parameters for UVEX NUV imaging
+
+properties:
+  spectral:
+    wave_min: 0.1000
+    wave_mid: 0.6000
+    wave_max: 1.1000
+    wave_unit: um
+
+  computing:
+    oversampling_x: 1
+    oversampling_y: 1
+    psf_oversampling: 10
+    flux_accuracy: 1e-4
+    tile_size: 32
