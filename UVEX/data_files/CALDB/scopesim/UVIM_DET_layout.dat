@@ -1,0 +1,22 @@
+# author: uvex_response
+# source: design
+# date_created: 2026-09-24
+# status: design
+# x_cen_unit: mm
+# y_cen_unit: mm
+# x_size_unit: mm
+# y_size_unit: mm
+# pixsize_unit: mm
+# angle_unit: deg
+# gain_unit: electron/adu
+
+id    x_cen    y_cen    x_size    y_size    pixsize    angle    gain    name
+ 1   -45.01    43.51     40.96     40.96     0.01      0.0     1.20     A1
+ 2     0.00    43.51     40.96     40.96     0.01      0.0     1.20     A2
+ 3    45.01    43.51     40.96     40.96     0.01      0.0     1.20     A3
+ 4   -45.01     0.00     40.96     40.96     0.01      0.0     1.20     B1
+ 5     0.00     0.00     40.96     40.96     0.01      0.0     1.20     B2
+ 6    45.01     0.00     40.96     40.96     0.01      0.0     1.20     B3
+ 7   -45.01   -43.51     40.96     40.96     0.01      0.0     1.20     C1
+ 8     0.00   -43.51     40.96     40.96     0.01      0.0     1.20     C2
+ 9    45.01   -43.51     40.96     40.96     0.01      0.0     1.20     C3

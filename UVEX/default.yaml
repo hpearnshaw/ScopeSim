@@ -1,0 +1,64 @@
+### default configuration for UVEX observations
+# under development
+
+object: configuration
+alias: OBS
+name: UVEX_default_config
+description: default configuration for UVEX imaging and spectroscopy
+status: development
+needs_scopesim: "v0.11.2"
+date_modified: 2026-09-03
+changes:
+  - 2026-01-28 (HE) initial version
+  - 2026-02-18 (ES) updated default LSS and spectral parameters
+  - 2026-09-03 (OA) moved spectral range description into the respective mode yaml files, loads only nuv by default
+
+packages:
+  - UVEX
+
+yamls:
+  - UVEX.yaml
+
+properties:
+  instrument: UVEX
+  modes: [nuv]
+  dit: 300
+  ndit: 1
+
+mode_yamls:
+  - object: observation
+    alias: OBS
+    name: nuv
+    description: The UVEX NUV imaging channel
+    status: development
+    yamls:
+      - UVIM_NUV.yaml
+      - UVIM_DET.yaml
+
+  - object: observation
+    alias: OBS
+    name: fuv
+    description: The UVEX FUV imaging channel
+    status: development
+    yamls:
+      - UVIM_FUV.yaml
+      - UVIM_DET.yaml
+
+  - object: observation
+    alias: OBS
+    name: lss
+    description: The UVEX spectroscopy channel
+    status: development
+    yamls:
+      - UVIM_LSS.yaml
+      - UVIM_DET_LSS.yaml
+      
+---
+object: simulation
+alias: SIM
+name: UVEX_simulation_parameters
+description: global simulation parameters for a UVEX observation
+
+properties:
+  random:
+    seed: 9001

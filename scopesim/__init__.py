@@ -86,3 +86,8 @@ from .server import (
 from .server.database import download_package  # remove in v0.12
 
 from .tests.mocks.load_basic_instrument import load_example_optical_train, example_simulation
+
+# Set irdb path on init to local UVEX package in this directory
+# This is a bit of a hack - come back and neaten this up later
+import os
+link_irdb(os.path.join(os.path.dirname(__file__),'..'))
